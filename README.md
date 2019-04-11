@@ -4,7 +4,7 @@
 
 
 Files TODO:
-genKeyPair
-encryptRSA - input: private key, plaintext | output: ciphertext
-decryptRSA - input: public key, ciphertext | output: plaintext
+* genKeyPair
+* encryptRSA - input: private key, plaintext | output: ciphertext
+* decryptRSA - input: public key, ciphertext | output: plaintext
 

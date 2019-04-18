@@ -59,11 +59,31 @@ while [ $temp -ne 0 ]; do
 	temp=$(($temp>>1))
 	bits=$(($bits+1))
 done
+bits=$(($bits-1))
 e=$(openssl prime -generate -bits $bits)
-echo $e
+
+modInverse () 
+{
+	a=$1
+	b=$2
+	a=$(($a % $b))
+	for i in $(seq 1 $b); do
+		if [ $(( ( $a* $i ) % $b )) -eq 1 ]; then
+			return $i
+		fi
+	done
+}
+
 #compute d:	d = e-1 (mod totient)
+leastCommonMultiple $(($p -1)) $(($q -1))
+c=$?
+modInverse $e $c
+d=$?
 #public key is n, e
+echo "public key: " $n " " $e
+
 #private key is d
+echo "private key: " $d
 
 greatestCommonDivisor()
 {

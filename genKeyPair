@@ -38,10 +38,13 @@ greatestCommonDivisor()
 
 }
 
-greatestCommonDivisor $1 $2
-echo $?
-
-#leastCommonMultiple ()
-#{
-#
-#}
+leastCommonMultiple ()
+{
+	a=$1
+	b=$2
+	greatestCommonDivisor $1 $2
+	num=$?
+	num2=$(( $a * $b ))
+	lcm=$(( $num2 / $num ))
+	return $lcm
+}

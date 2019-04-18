@@ -1,9 +1,47 @@
 #Pseudocode
+#
+#I will be using openssl to generate the primes for the key since I dont trust myself to generate those with sufficent randomness
 #choose p
+p=$(openssl prime -generate -bits 2048)
 #choose q
+q=$(openssl prime -generate -bits 2048)
 #n = p*q
+n=$(($p*$q))
 #totient = leastCommonMultiple( p-1, q-1 )
+
 #choose e: 	1 < e < totient, e coprime to totient (e and totient share no factors other than one)
 #compute d:	d = e-1 (mod totient)
 #public key is n, e
 #private key is d
+
+greatestCommonDivisor()
+{
+	if [[ $1 -gt $2 ]]; then
+		a=$1
+		b=$2
+	else
+		a=$2
+		b=$1
+	fi
+	
+	multiple=$b
+	while [ $multiple -gt 0 ]; do
+		x=$(($a % $multiple))
+		y=$(($b % $multiple))
+
+		if [[ $x -eq 0 ]] && [[ $y -eq 0 ]]; then
+			return $multiple
+		fi
+		multiple=$(($multiple-1))
+	done
+	return 1
+
+}
+
+greatestCommonDivisor $1 $2
+echo $?
+
+#leastCommonMultiple ()
+#{
+#
+#}

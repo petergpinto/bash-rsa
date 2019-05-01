@@ -1,15 +1,23 @@
-#Pseudocode
-#
+#Generate public/private key pair and write to file
+
+if [ $# -ne 1 ]; then
+	echo "Usage: genKeyPair filename"
+	exit
+fi
+
+
 #I will be using openssl to generate the primes for the key since I dont trust myself to generate those with sufficent randomness
 #P and Q are large random primes
 #choose p
-p=$(openssl prime -generate -bits 16)
-#choose q
-q=$(openssl prime -generate -bits 16)
 
+echo -n "Generating prime numbers..."
+p=$(openssl prime -generate -bits 8)
+#choose q
+q=$(openssl prime -generate -bits 8)
+echo "Done"
 #n is the modulus for the public and private keys
 #n = p*q
-n=$(($p*$q))
+n=$(bc <<< "$p * $q")
 
 greatestCommonDivisor()
 {
@@ -22,14 +30,14 @@ greatestCommonDivisor()
 	fi
 	
 	multiple=$b
-	while [ "$multiple" -gt 0 ]; do
-		x=$(($a % $multiple))
-		y=$(($b % $multiple))
+	while [ $(bc <<< "$multiple != 0") -eq 1 ]; do
+		x=$(bc <<< "$a % $multiple")
+		y=$(bc <<< "$b % $multiple")
 
 		if [[ $x -eq 0 ]] && [[ $y -eq 0 ]]; then
 			return $multiple
 		fi
-		multiple=$(($multiple-1))
+		multiple=$(bc <<< "$multiple - 1")
 	done
 	return 1
 
@@ -41,47 +49,45 @@ leastCommonMultiple ()
 	b=$2
 	greatestCommonDivisor $1 $2
 	num=$?
-	num2=$(( $a * $b ))
-	lcm=$(( $num2 / $num ))
-	return $lcm
+	num2=$(bc <<< "$a * $b")
+	lcm=$(bc <<< "$num2 / $num")
 }
 
 #This value is kept private
 #totient = leastCommonMultiple( p-1, q-1 )
-leastCommonMultiple $p $q
-totient=$?
-
-
+echo -n "Calculating totient value..."
+leastCommonMultiple $(bc <<< "$p - 1") $(bc <<< "$q - 1")
+totient=$lcm
+echo "Done"
+echo -n "Choosing public exponent..."
 #choose e: 	1 < e < totient, e coprime to totient (e and totient share no factors other than one)
-bits=0
-temp=$totient
-while [ $temp -ne 0 ]; do
-	temp=$(($temp>>1))
-	bits=$(($bits+1))
-done
-bits=$(($bits-1))
-e=$(openssl prime -generate -bits $bits)
-
+bits=$(bc -l <<< "(l($totient) / l(2)) + 1")
+maxBits=$(($(cut -d "." -f 1 <<< $bits) - 1))
+e=$(openssl prime -generate -bits $maxBits)
+echo "Done"
 modInverse () 
 {
-	a=$1
-	b=$2
-	a=$(($a % $b))
-	for i in $(seq 1 $b); do
-		if [ $(( ( $a* $i ) % $b )) -eq 1 ]; then
-			return $i
+	for i in $(seq 1 $(($2+1))); do
+		if [ $(bc <<< "($1 * $i) % $2") -eq 1 ]; then
+			inverse=$i
 		fi
 	done
 }
 
+
 #compute d:	d = e-1 (mod totient)
-leastCommonMultiple $(($p -1)) $(($q -1))
-c=$?
-modInverse $e $c
-d=$?
+echo -n "Calculating modular inverse..."
+modInverse $e $lcm
+d=$inverse
+echo "Done"
+
+echo "Key Generation finished"
+echo "Saving key to file"
+
 #public key is n, e
-echo "public key: " $n " " $e
+echo "public key:" $n $e > $1."pub"
 
 #private key is d
-echo "private key: " $d
+echo "private key:" $d > $1
+chmod 600 $1
 

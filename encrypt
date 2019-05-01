@@ -1,0 +1,21 @@
+hex=$(xxd -p $2)
+upperHex=${hex^^}
+dec=$(echo "obase=10; ibase=16; $upperHex" | bc)
+
+e=$(cut -d " " -f4 $1 )
+n=$(cut -d " " -f3 $1 )
+
+echo -n "Encrypting..."
+length=${#dec}
+echo $dec
+ciphertext=':'
+for i in $(seq 1 1 ${#dec}); do
+	num=$(cut -c $i <<< $dec)
+	numenc=$(bc <<< "($num ^ $e) % $n")
+	ciphertext+=$(bc <<< "($num ^ $e) % $n")
+	ciphertext+=':'
+done
+echo "Done"
+
+echo "Storing file as $3"
+echo $ciphertext > $3

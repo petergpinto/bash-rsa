@@ -8,10 +8,7 @@ for i in $(seq 2 $length); do
 	numdec=$(bc <<< "($num ^ $d) % $n")
 	decrypted+=$(bc <<< "($num ^ $d) % $n")
 done
-echo $plaintext
 
 hex=$(bc <<< "obase=16; $decrypted")
-echo $hex
 plaintext=$(echo $hex | xxd -p -r)
-echo $plaintext
 echo $plaintext >> $3

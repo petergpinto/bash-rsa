@@ -6,9 +6,9 @@
 
 Files:
 * genKeyPair - input: filename
-** This generates a new RSA key pair
+  * This generates a new RSA key pair
 * encrypt - input: public key, plaintext, outfile
-** Takes a public RSA key and plaintext to produce encrypted text
+  * Takes a public RSA key and plaintext to produce encrypted text
 * decrypt - input: public key, ciphertext, outfile | output: plaintext
-** Takes a private RSA key and ciphertxt to restore the original text
+  * Takes a private RSA key and ciphertxt to restore the original text
 

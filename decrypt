@@ -14,3 +14,4 @@ hex=$(bc <<< "obase=16; $decrypted")
 echo $hex
 plaintext=$(echo $hex | xxd -p -r)
 echo $plaintext
+echo $plaintext >> $3

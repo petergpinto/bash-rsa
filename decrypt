@@ -1,0 +1,16 @@
+d=$(cut -d " " -f3 $1)
+cipherfile=$(cat $2)
+n=$(cut -d " " -f3 $1.pub)
+length=$(fgrep -o ':' $2 | wc -l)
+decrypted=''
+for i in $(seq 2 $length); do
+	num=$(cut -d ":" -f $i <<< $cipherfile)
+	numdec=$(bc <<< "($num ^ $d) % $n")
+	decrypted+=$(bc <<< "($num ^ $d) % $n")
+done
+echo $plaintext
+
+hex=$(bc <<< "obase=16; $decrypted")
+echo $hex
+plaintext=$(echo $hex | xxd -p -r)
+echo $plaintext

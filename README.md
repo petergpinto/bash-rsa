@@ -1,5 +1,6 @@
 # bash-rsa
 ## RSA Encryption implemented using bash scripting
+This was a toy project created for a class to learn more about bash
 ### Please don't use this for anything important
 
 
